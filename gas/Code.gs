@@ -30,6 +30,7 @@ const SHEET_NAMES = {
 function doOptions(e) {
   var output = ContentService.createTextOutput('');
   output.setMimeType(ContentService.MimeType.TEXT);
+  output.setHeader('Access-Control-Allow-Origin', '*');
   return output;
 }
 
@@ -159,32 +160,14 @@ function doGet(e) {
       case 'getBarang':
         response = getBarang();
         break;
-      case 'addBarang':
-        response = addBarang(e.parameter);
-        break;
-      case 'updateBarang':
-        response = updateBarang(e.parameter);
-        break;
-      case 'deleteBarang':
-        response = deleteBarang(e.parameter);
-        break;
       case 'getDashboardStats':
         response = getDashboardStats();
         break;
       case 'getBarangMasuk':
         response = getBarangMasuk(e.parameter);
         break;
-      case 'addBarangMasuk':
-        response = addBarangMasuk(e.parameter);
-        break;
       case 'getBarangKeluar':
         response = getBarangKeluar(e.parameter);
-        break;
-      case 'addBarangKeluar':
-        response = addBarangKeluar(e.parameter);
-        break;
-      case 'getLaporan':
-        response = getLaporan(e.parameter);
         break;
       default:
         // Default API info response
@@ -203,6 +186,7 @@ function doGet(e) {
 
     var output = ContentService.createTextOutput(JSON.stringify(response));
     output.setMimeType(ContentService.MimeType.JSON);
+    output.setHeader('Access-Control-Allow-Origin', '*');
     return output;
 
   } catch (error) {
@@ -212,6 +196,7 @@ function doGet(e) {
       message: 'Server error: ' + error.toString()
     }));
     output.setMimeType(ContentService.MimeType.JSON);
+    output.setHeader('Access-Control-Allow-Origin', '*');
     return output;
   }
 }
@@ -273,6 +258,7 @@ function doPost(e) {
 
     var output = ContentService.createTextOutput(JSON.stringify(response));
     output.setMimeType(ContentService.MimeType.JSON);
+    output.setHeader('Access-Control-Allow-Origin', '*');
     return output;
 
   } catch (error) {
@@ -282,6 +268,7 @@ function doPost(e) {
       message: 'Server error: ' + error.toString()
     }));
     output.setMimeType(ContentService.MimeType.JSON);
+    output.setHeader('Access-Control-Allow-Origin', '*');
     return output;
   }
 }
