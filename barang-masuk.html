@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barang Masuk - Sistem Inventori</title>
+    <script>try{if(localStorage.getItem('app-theme')==='light')document.documentElement.className='light-mode';}catch(e){}</script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme-toggle.css">
+    <script>(function(){const t=localStorage.getItem('theme');t==='light'&&document.documentElement.classList.add('light-mode');})();</script>
+</head>
+
+<body>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">📦</div>
+            <div class="sidebar-logo-text">
+                <h3>Inventori</h3>
+                <p>Konvensi Harapan</p>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="barang.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📦</span>
+                <span>Data Barang</span>
+            </a>
+            <a href="barang-masuk.html" class="sidebar-nav-item active">
+                <span class="sidebar-nav-icon">📥</span>
+                <span>Barang Masuk</span>
+            </a>
+            <a href="barang-keluar.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📤</span>
+                <span>Barang Keluar</span>
+            </a>
+            <a href="laporan.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📄</span>
+                <span>Laporan</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar" id="userInitial">A</div>
+                <div class="sidebar-user-info">
+                    <h4 id="userName">Admin</h4>
+                    <p id="userRole">Administrator</p>
+                </div>
+            </div>
+            <button class="theme-toggle" id="themeToggleSidebar" onclick="toggleTheme()">
+                <span class="theme-toggle-icon">☀️</span> Light Mode
+            </button>
+            <button class="btn btn-danger btn-sm w-full" onclick="auth.logout()">Keluar</button>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <h2>Barang Masuk</h2>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+                <span class="theme-toggle-icon">☀️</span> Light
+            </button>
+        </div>
+
+        <div class="animate-fadeIn">
+            <h1>Barang Masuk</h1>
+            <p class="text-gray">Input transaksi barang masuk</p>
+        </div>
+
+        <!-- Input Form -->
+        <div class="glass-card animate-fadeIn mt-6">
+            <h3 class="mb-4">Form Barang Masuk</h3>
+            <form id="masukForm" onsubmit="submitBarangMasuk(event)">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="form-label">Tanggal</label>
+                        <input type="date" class="form-input" id="tanggal" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Pilih Barang</label>
+                        <select class="form-select" id="idBarang" required>
+                            <option value="">Pilih barang...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Jumlah Masuk</label>
+                        <input type="number" class="form-input" id="jumlah" required min="1" placeholder="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-success w-full">
+                            📥 Simpan Barang Masuk
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="table-container animate-fadeIn mt-8">
+            <div class="table-header">
+                <h3>Riwayat Barang Masuk</h3>
+                <div class="search-box">
+                    <span class="search-box-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Cari transaksi..."
+                        onkeyup="searchTransaksi(this.value)">
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>ID Barang</th>
+                            <th>Nama Barang</th>
+                            <th>Jumlah</th>
+                            <th>User</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaksiTableBody">
+                        <tr>
+                            <td colspan="5" class="text-center text-gray">Memuat data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/theme.js"></script>
+
+    <script>
+    let allTransaksi = [];
+
+    // Set today's date as default
+    document.getElementById('tanggal').valueAsDate = new Date();
+
+    async function submitBarangMasuk(event) {
+    event.preventDefault();
+
+    const barang = getSelectedBarang();
+    if (!barang) {
+    showAlert('Pilih barang terlebih dahulu', 'warning');
+    return;
+    }
+
+    const data = {
+    tanggal: document.getElementById('tanggal').value,
+    id_barang: barang.id,
+    nama_barang: barang.nama,
+    jumlah: parseInt(document.getElementById('jumlah').value),
+    user: auth.getUserName()
+    };
+
+    try {
+    const result = await api.addBarangMasuk(data);
+
+    if (result.success) {
+    showAlert('Barang masuk berhasil dicatat. Stok telah diperbarui!', 'success');
+    document.getElementById('masukForm').reset();
+    document.getElementById('tanggal').valueAsDate = new Date();
+    loadTransaksi();
+    loadBarangList(); // Refresh barang list for updated stock
+    } else {
+    showAlert(result.message || 'Gagal menyimpan transaksi', 'danger');
+    }
+    } catch (error) {
+    console.error('Submit error:', error);
+    showAlert('Terjadi kesalahan saat menyimpan', 'danger');
+    }
+    }
+
+    async function loadTransaksi() {
+    try {
+    const result = await api.getBarangMasuk();
+
+    if (result.success) {
+    allTransaksi = result.data || [];
+    renderTable(allTransaksi);
+    }
+    } catch (error) {
+    console.error('Load error:', error);
+    }
+    }
+
+    function renderTable(data) {
+        const tbody = document.getElementById('transaksiTableBody');
+
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray">Belum ada transaksi</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = data.map(item => `
+            <tr>
+                <td>${formatDate(item.tanggal)}</td>
+                <td><code>${item.id_barang}</code></td>
+                <td><strong>${item.nama_barang}</strong></td>
+                <td><span class="badge badge-success">+${formatNumber(item.jumlah)}</span></td>
+                <td>${item.user || '-'}</td>
+            </tr>
+        `).join('');
+    }
+
+    function searchTransaksi(query) {
+    query = query.toLowerCase();
+    const filtered = allTransaksi.filter(item =>
+    item.nama_barang.toLowerCase().includes(query) ||
+    item.id_barang.toLowerCase().includes(query)
+    );
+    renderTable(filtered);
+    }
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('show');
+        document.getElementById('sidebarOverlay').classList.toggle('show');
+    }
+
+    // Load barang list for dropdown
+    let allBarang = [];
+
+    async function loadBarangList() {
+        try {
+            const result = await api.getBarang();
+            if (result.success) {
+                allBarang = result.data || [];
+                populateBarangDropdown();
+            }
+        } catch (error) {
+            console.error('Load barang error:', error);
+        }
+    }
+
+    function populateBarangDropdown() {
+        const select = document.getElementById('idBarang');
+        select.innerHTML = '<option value="">Pilih barang...</option>';
+
+        allBarang.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.id_barang;
+            option.textContent = `${item.nama_barang} (Stok: ${item.stok} ${item.satuan})`;
+            option.dataset.nama = item.nama_barang;
+            option.dataset.id = item.id_barang;
+            select.appendChild(option);
+        });
+    }
+
+    function getSelectedBarang() {
+        const select = document.getElementById('idBarang');
+        const selectedOption = select.options[select.selectedIndex];
+
+        if (!selectedOption || !selectedOption.value) {
+            return null;
+        }
+
+        return {
+            id: selectedOption.dataset.id,
+            nama: selectedOption.dataset.nama
+        };
+    }
+
+    // Utility functions
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('id-ID');
+    }
+
+    function formatNumber(num) {
+        return new Intl.NumberFormat('id-ID').format(num);
+    }
+
+    function showAlert(message, type = 'info') {
+        alert(message);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        if (auth.requireAuth()) {
+            document.getElementById('userName').textContent = auth.getUserName();
+            document.getElementById('userRole').textContent = auth.getRoleDisplay();
+            document.getElementById('userInitial').textContent = auth.getUserName().charAt(0).toUpperCase();
+
+            loadBarangList();
+            loadTransaksi();
+        }
+    });
+    </script>
+</body>
+
+</html>

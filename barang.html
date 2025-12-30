@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Barang - Sistem Inventori</title>
+    <script>try{if(localStorage.getItem('app-theme')==='light')document.documentElement.className='light-mode';}catch(e){}</script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme-toggle.css">
+    <script>(function(){const t=localStorage.getItem('theme');t==='light'&&document.documentElement.classList.add('light-mode');})();</script>
+</head>
+
+<body>
+    <!-- Sidebar (same as dashboard) -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">📦</div>
+            <div class="sidebar-logo-text">
+                <h3>Inventori</h3>
+                <p>Konvensi Harapan</p>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="barang.html" class="sidebar-nav-item active">
+                <span class="sidebar-nav-icon">📦</span>
+                <span>Data Barang</span>
+            </a>
+            <a href="barang-masuk.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📥</span>
+                <span>Barang Masuk</span>
+            </a>
+            <a href="barang-keluar.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📤</span>
+                <span>Barang Keluar</span>
+            </a>
+            <a href="laporan.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📄</span>
+                <span>Laporan</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar" id="userInitial">A</div>
+                <div class="sidebar-user-info">
+                    <h4 id="userName">Admin</h4>
+                    <p id="userRole">Administrator</p>
+                </div>
+            </div>
+            <button class="theme-toggle" id="themeToggleSidebar" onclick="toggleTheme()">
+                <span class="theme-toggle-icon">☀️</span> Light Mode
+            </button>
+            <button class="btn btn-danger btn-sm w-full" onclick="auth.logout()">Keluar</button>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="topbar">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <h2>Data Barang</h2>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+                <span class="theme-toggle-icon">☀️</span> Light
+            </button>
+        </div>
+
+        <div class="animate-fadeIn">
+            <h1>Data Barang</h1>
+            <p class="text-gray">Kelola data inventori barang</p>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-container animate-fadeIn mt-6">
+            <div class="table-header">
+                <h3>Daftar Barang</h3>
+                <div class="table-actions">
+                    <div class="search-box">
+                        <span class="search-box-icon">🔍</span>
+                        <input type="text" id="searchInput" placeholder="Cari barang...">
+                    </div>
+                    <button class="btn btn-primary" onclick="showAddModal()">
+                        ➕ Tambah Barang
+                    </button>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID Barang</th>
+                            <th>Nama Barang</th>
+                            <th>Kategori</th>
+                            <th>Satuan</th>
+                            <th>Stok</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="barangTableBody">
+                        <tr>
+                            <td colspan="6" class="text-center text-gray">Memuat data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="barangModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Tambah Barang</h3>
+                <button class="modal-close" onclick="hideModal('barangModal')">✕</button>
+            </div>
+            <form onsubmit="saveBarang(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="barangId">
+
+                    <div class="form-group">
+                        <label class="form-label">Nama Barang</label>
+                        <input type="text" class="form-input" id="namaBarang" required
+                            placeholder="Contoh: Meja Kantor">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Kategori</label>
+                        <input type="text" class="form-input" id="kategori" required placeholder="Contoh: Furniture">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Satuan</label>
+                        <select class="form-select" id="satuan" required>
+                            <option value="">Pilih satuan...</option>
+                            <option value="pcs">Pcs (Pieces)</option>
+                            <option value="box">Box</option>
+                            <option value="kg">Kg (Kilogram)</option>
+                            <option value="liter">Liter</option>
+                            <option value="unit">Unit</option>
+                            <option value="pack">Pack</option>
+                            <option value="lusin">Lusin</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Stok Awal</label>
+                        <input type="number" class="form-input" id="stokAwal" required min="0" placeholder="0">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="hideModal('barangModal')">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/barang.js"></script>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+    </script>
+</body>
+
+</html>

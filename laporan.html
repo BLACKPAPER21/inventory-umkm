@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan - Sistem Inventori</title>
+    <script>try{if(localStorage.getItem('app-theme')==='light')document.documentElement.className='light-mode';}catch(e){}</script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme-toggle.css">
+    <script>(function(){const t=localStorage.getItem('theme');t==='light'&&document.documentElement.classList.add('light-mode');})();</script>
+    <style>
+        @media print {
+        .topbar,
+        .no-print {
+            display: none !important;
+        }
+
+        .main-content {
+            margin-left: 0 !important;
+        }
+
+        .glass-card {
+            border: 1px solid #ddd !important;
+            background: white !important;
+            color: #000 !important;
+        }
+
+        body {
+            background: white !important;
+            color: #000 !important;
+        }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar no-print" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">📦</div>
+            <div class="sidebar-logo-text">
+                <h3>Inventori</h3>
+                <p>Konvensi Harapan</p>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="barang.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📦</span>
+                <span>Data Barang</span>
+            </a>
+            <a href="barang-masuk.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📥</span>
+                <span>Barang Masuk</span>
+            </a>
+            <a href="barang-keluar.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📤</span>
+                <span>Barang Keluar</span>
+            </a>
+            <a href="laporan.html" class="sidebar-nav-item active">
+                <span class="sidebar-nav-icon">📄</span>
+                <span>Laporan</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar" id="userInitial">A</div>
+                <div class="sidebar-user-info">
+                    <h4 id="userName">Admin</h4>
+                    <p id="userRole">Administrator</p>
+                </div>
+            </div>
+            <button class="theme-toggle" id="themeToggleSidebar" onclick="toggleTheme()">
+                <span class="theme-toggle-icon">☀️</span> Light Mode
+            </button>
+            <button class="btn btn-danger btn-sm w-full" onclick="auth.logout()">Keluar</button>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay no-print" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="main-content">
+        <div class="topbar no-print">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <h2>Laporan</h2>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+                <span class="theme-toggle-icon">☀️</span> Light
+            </button>
+        </div>
+
+        <div class="animate-fadeIn">
+            <h1>Laporan Inventori</h1>
+            <p class="text-gray">Generate dan export laporan inventori</p>
+        </div>
+
+        <!-- Report Filters -->
+        <div class="glass-card animate-fadeIn mt-6 no-print">
+            <h3 class="mb-4">Filter Laporan</h3>
+            <div class="grid grid-cols-4 gap-4">
+                <div class="form-group">
+                    <label class="form-label">Jenis Laporan</label>
+                    <select class="form-select" id="reportType">
+                        <option value="inventory">Laporan Inventori</option>
+                        <option value="masuk">Laporan Barang Masuk</option>
+                        <option value="keluar">Laporan Barang Keluar</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tanggal Awal</label>
+                    <input type="date" class="form-input" id="startDate">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tanggal Akhir</label>
+                    <input type="date" class="form-input" id="endDate">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">&nbsp;</label>
+                    <button class="btn btn-primary w-full" onclick="generateReport()">
+                        📊 Buat Laporan
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Summary -->
+        <div id="reportSummary" class="mt-8"></div>
+
+        <!-- Export Buttons -->
+        <div id="exportButtons" class="hidden no-print mt-6">
+            <div class="flex gap-4">
+                <button class="btn btn-success" onclick="exportToExcel()">
+                    📊 Export ke Excel
+                </button>
+                <button class="btn btn-secondary" onclick="exportToPDF()">
+                    📄 Export ke PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Report Table -->
+        <div class="table-container animate-fadeIn mt-6">
+            <div class="table-header">
+                <h3>Data Laporan</h3>
+                <div class="text-gray text-sm" id="reportInfo">
+                    Pilih jenis laporan dan klik "Buat Laporan"
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead id="reportTableHead">
+                        <tr>
+                            <th colspan="6">Belum ada laporan yang dibuat</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody">
+                        <tr>
+                            <td colspan="6" class="text-center text-gray">
+                                Tidak ada data untuk ditampilkan. Pilih jenis laporan dan klik "Buat Laporan"
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/laporan.js"></script>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            if (auth.requireAuth()) {
+                document.getElementById('userName').textContent = auth.getUserName();
+                document.getElementById('userRole').textContent = auth.getRoleDisplay();
+                document.getElementById('userInitial').textContent = auth.getUserName().charAt(0).toUpperCase();
+            }
+        });
+    </script>
+</body>
+
+</html>

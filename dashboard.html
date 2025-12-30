@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistem Inventori</title>
+    <script>try{if(localStorage.getItem('app-theme')==='light')document.documentElement.className='light-mode';}catch(e){}</script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/theme-toggle.css">
+</head>
+
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">📦</div>
+            <div class="sidebar-logo-text">
+                <h3>Inventori</h3>
+                <p>Konvensi Harapan</p>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="sidebar-nav-item active">
+                <span class="sidebar-nav-icon">📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="barang.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📦</span>
+                <span>Data Barang</span>
+            </a>
+            <a href="barang-masuk.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📥</span>
+                <span>Barang Masuk</span>
+            </a>
+            <a href="barang-keluar.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📤</span>
+                <span>Barang Keluar</span>
+            </a>
+            <a href="laporan.html" class="sidebar-nav-item">
+                <span class="sidebar-nav-icon">📄</span>
+                <span>Laporan</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar" id="userInitial">A</div>
+                <div class="sidebar-user-info">
+                    <h4 id="userName">Admin</h4>
+                    <p id="userRole">Administrator</p>
+                </div>
+            </div>
+            <button class="theme-toggle" id="themeToggleSidebar" onclick="toggleTheme()">
+                <span class="theme-toggle-icon">☀️</span> Light Mode
+            </button>
+            <button class="btn btn-danger btn-sm w-full" onclick="auth.logout()">
+                Keluar
+            </button>
+        </div>
+    </div>
+
+    <!-- Sidebar Overlay (Mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar (Mobile) -->
+        <div class="topbar">
+            <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+            <h2>Dashboard</h2>
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+                <span class="theme-toggle-icon">☀️</span> Light
+            </button>
+        </div>
+
+        <!-- Page Header -->
+        <div class="animate-fadeIn">
+            <h1>Dashboard</h1>
+            <p class="text-gray">Selamat datang di sistem inventori UMKM Konvensi Harapan</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid animate-fadeIn" style="animation-delay: 0.1s">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <h3 class="stat-card-title">Total Barang</h3>
+                    <div class="stat-card-icon">📦</div>
+                </div>
+                <p class="stat-card-value" id="totalBarang">0</p>
+                <div class="stat-card-footer">
+                    <span>📈 Data terbaru</span>
+                </div>
+            </div>
+
+            <div class="stat-card warning">
+                <div class="stat-card-header">
+                    <h3 class="stat-card-title">Stok Menipis</h3>
+                    <!-- Continuing dashboard.html -->
+                    <div class="stat-card-icon">⚠️</div>
+                </div>
+                <p class="stat-card-value" id="lowStock">0</p>
+                <div class="stat-card-footer">
+                    <span>🔔 Perlu perhatian</span>
+                </div>
+            </div>
+
+            <div class="stat-card success">
+                <div class="stat-card-header">
+                    <h3 class="stat-card-title">Barang Masuk</h3>
+                    <div class="stat-card-icon">📥</div>
+                </div>
+                <p class="stat-card-value" id="barangMasuk">0</p>
+                <div class="stat-card-footer">
+                    <span>📅 Hari ini</span>
+                </div>
+            </div>
+
+            <div class="stat-card danger">
+                <div class="stat-card-header">
+                    <h3 class="stat-card-title">Barang Keluar</h3>
+                    <div class="stat-card-icon">📤</div>
+                </div>
+                <p class="stat-card-value" id="barangKeluar">0</p>
+                <div class="stat-card-footer">
+                    <span>📅 Hari ini</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="grid grid-cols-2 gap-6 mt-8">
+            <!-- Recent Incoming -->
+            <div class="glass-card animate-fadeIn" style="animation-delay: 0.2s">
+                <h3>Transaksi Masuk Terbaru</h3>
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nama Barang</th>
+                                <th>Jumlah</th>
+                                <th>Tanggal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentMasukBody">
+                            <tr>
+                                <td colspan="3" class="text-center text-gray">Memuat data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Outgoing -->
+            <div class="glass-card animate-fadeIn" style="animation-delay: 0.3s">
+                <h3>Transaksi Keluar Terbaru</h3>
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nama Barang</th>
+                                <th>Jumlah</th>
+                                <th>Tanggal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentKeluarBody">
+                            <tr>
+                                <td colspan="3" class="text-center text-gray">Memuat data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="glass-card mt-8 animate-fadeIn" style="animation-delay: 0.4s">
+            <h3 class="mb-4">Aksi Cepat</h3>
+            <div class="flex gap-4 flex-wrap">
+                <a href="barang.html" class="btn btn-primary">
+                    <span>➕</span> Tambah Barang
+                </a>
+                <a href="barang-masuk.html" class="btn btn-success">
+                    <span>📥</span> Input Barang Masuk
+                </a>
+                <a href="barang-keluar.html" class="btn btn-danger">
+                    <span>📤</span> Input Barang Keluar
+                </a>
+                <a href="laporan.html" class="btn btn-secondary">
+                    <span>📄</span> Lihat Laporan
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/dashboard.js"></script>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        }
+    </script>
+</body>
+
+</html>

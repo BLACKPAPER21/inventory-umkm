@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistem Inventori</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-background);
+            z-index: 0;
+        }
+
+        .login-background::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+            top: -250px;
+            right: -250px;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .login-background::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+            bottom: -200px;
+            left: -200px;
+            animation: pulse 4s ease-in-out infinite;
+            animation-delay: 2s;
+        }
+
+        .login-card {
+            background: var(--glass-background);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-10);
+            width: 100%;
+            max-width: 450px;
+            box-shadow: var(--shadow-2xl);
+            z-index: 1;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: var(--space-8);
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-4xl);
+            margin: 0 auto var(--space-4);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+        }
+
+        .login-title {
+            font-size: var(--text-3xl);
+            margin-bottom: var(--space-2);
+            background: linear-gradient(135deg, #fff 0%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-subtitle {
+            color: var(--color-gray-light);
+            font-size: var(--text-sm);
+            margin: 0;
+        }
+
+        .login-form {
+            margin-bottom: var(--space-6);
+        }
+
+        .login-footer {
+            text-align: center;
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--glass-border);
+            color: var(--color-gray);
+            font-size: var(--text-sm);
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: var(--space-4);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-gray);
+            font-size: var(--text-lg);
+        }
+
+        .input-group input {
+            padding-left: 3rem;
+        }
+
+        .demo-credentials {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid var(--color-primary);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            margin-top: var(--space-6);
+            font-size: var(--text-sm);
+        }
+
+        .demo-credentials h4 {
+            font-size: var(--text-sm);
+            margin-bottom: var(--space-2);
+            color: var(--color-primary-light);
+        }
+
+        .demo-credentials p {
+            margin: var(--space-1) 0;
+            color: var(--color-white-muted);
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-background"></div>
+
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-logo">📦</div>
+                <h1 class="login-title">Sistem Inventori</h1>
+                <p class="login-subtitle">UMKM Konvensi Harapan - Kabupaten Sidrap</p>
+            </div>
+
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <div class="input-group">
+                        <span class="input-icon">👤</span>
+                        <input type="text" class="form-input" id="username" placeholder="Masukkan username" required
+                            autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" class="form-input" id="password" placeholder="Masukkan password" required
+                            autocomplete="current-password">
+                    </div>
+                </div>
+
+                <div id="errorMessage" class="form-error hidden"></div>
+
+                <button type="submit" class="btn btn-primary btn-lg w-full">
+                    Masuk
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <p>© 2024 UMKM Konvensi Harapan. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+
+    <script>
+        // Wait for DOM and all scripts to load
+        window.addEventListener('DOMContentLoaded', function () {
+            // Simple alert function
+            function showAlert(message, type) {
+                const errorDiv = document.getElementById('errorMessage');
+                errorDiv.textContent = message;
+                errorDiv.classList.remove('hidden');
+                if (type === 'success') {
+                    errorDiv.style.color = '#10b981';
+                } else {
+                    errorDiv.style.color = '#ef4444';
+                }
+            }
+
+            // Check if already logged in
+            if (auth.isAuthenticated()) {
+                window.location.href = 'dashboard.html';
+            }
+
+            // Handle login form submission
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                const errorDiv = document.getElementById('errorMessage');
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+
+                // Clear previous error
+                errorDiv.classList.add('hidden');
+                errorDiv.textContent = '';
+
+                // Disable submit button
+                submitBtn.disabled = true;
+                submitBtn.innerHTML =
+                    '<span class="animate-spin" style="display:inline-block;">⏳</span> Memproses...';
+
+                try {
+                    const result = await auth.login(username, password);
+
+                    if (result.success) {
+                        // Show success message
+                        showAlert('Login berhasil! Mengalihkan...', 'success');
+
+                        // Redirect to dashboard
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 1000);
+                    } else {
+                        // Show error
+                        errorDiv.textContent = result.message || 'Username atau password salah';
+                        errorDiv.classList.remove('hidden');
+
+                        // Re-enable button
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Masuk';
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    errorDiv.textContent = 'Terjadi kesalahan saat login. Silakan coba lagi.';
+                    errorDiv.classList.remove('hidden');
+
+                    // Re-enable button
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Masuk';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
